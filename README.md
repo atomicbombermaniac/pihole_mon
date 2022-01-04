@@ -14,5 +14,11 @@ adapted code to plot a graph in SDL from Bertrand Martel(https://github.com/bert
 The fonts are free on the web.
 The code is an instable mess and needs lots of work for anything serious. Feel free to turn it into whatever you like.
 Absolutely no warranty or claim for anything.
-License could be WtfPL at best.
+License could be WtfPL at best (you will find remnants of that in the code).
 
+WARNING!
+You need to change the IP of http_get calls in the code! Put the IP of your piHole!
+Also:
+In order to get the graph to show (not just the summary at the top), you need an authenticated call to the pihole API.
+That means replace the auth token on line 12 of file pi-data.c with your personal token. Info on how to generate/get this
+can be found at https://chrisbergeron.com/2018/06/21/pihole_api/ .
