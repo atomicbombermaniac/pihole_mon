@@ -22,3 +22,5 @@ Also:
 In order to get the graph to show (not just the summary at the top), you need an authenticated call to the pihole API.
 That means replace the auth token on line 12 of file pi-data.c with your personal token. Info on how to generate/get this
 can be found at https://chrisbergeron.com/2018/06/21/pihole_api/ .
+
+![screenshot](https://github.com/atomicbombermaniac/pihole_mon/blob/main/pihole-mon.png?raw=true)
