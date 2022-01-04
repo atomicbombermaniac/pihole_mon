@@ -74,7 +74,7 @@ int main(int argc, char **argv)
   while (1)
   {
     iters++;
-    if (iters == 6)
+    if (iters == 11)
     {
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
       SDL_RenderClear(renderer);
