@@ -74,7 +74,7 @@ int main(int argc, char **argv)
   while (1)
   {
     iters++;
-    if (iters == 60)
+    if (iters == 6)
     {
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
       SDL_RenderClear(renderer);
@@ -82,12 +82,7 @@ int main(int argc, char **argv)
       drawPlotOver10Mins(window, renderer);
       iters = 0;
     }
-    printf("iters = %d\n", iters);
-
-    //    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    //    SDL_RenderClear(renderer); // fill the scene with whatever color was set
-
-    //draw_iso(renderer, output);
+    //printf("iters = %d\n", iters);
 
     SDL_RenderPresent(renderer); // copy to screen
     updateInput();

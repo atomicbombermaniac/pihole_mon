@@ -307,6 +307,11 @@ void drawSummaryText(SDL_Window *window, SDL_Renderer *renderer, char *text, cha
     TTF_Font *smallFont = TTF_OpenFont(font_text_path_for_big_text, font_text_size_for_small_text);
     TTF_Font *valueFont = TTF_OpenFont(font_text_path_for_big_text, font_text_size_for_big_text);
 
+    if(!smallFont || !valueFont ){
+        printf("TTF_OpenFont messed up opening the fonts. Skipping this time.\n");
+        return;
+    }
+
     SDL_Color font_color_small = {0, 180, 0};
     SDL_Color font_color_big = {0, 240, 0};
 
