@@ -231,8 +231,9 @@ int getJsonValueInt(cJSON *root, char *ident)
     {
         ret_val = (int)cJSON_GetNumberValue(branch);
         fprintf(stderr,"%s ==-> %d\n", (char *)jsn, ret_val);
-        free((void *)jsn);
+        cJSON_free(jsn);
     }
+
     return ret_val;
 }
 
@@ -249,14 +250,15 @@ float getJsonValueFloat(cJSON *root, char *ident)
     {
         fprintf(stderr,"%s\n", (char *)jsn);
         ret_val = atof((char *)jsn);
-        free((void *)jsn);
+        cJSON_free(jsn);
     }
+
     return ret_val;
 }
 
 void getJsonValueString(cJSON *root, char *ident, char *ret_val)
 {
-    const cJSON *branch = NULL;
+    cJSON *branch = NULL;
     cJSON *jsn;
     branch = cJSON_GetObjectItem(root, ident);
     fprintf(stderr,"Checking %s \n", ident);
@@ -270,7 +272,7 @@ void getJsonValueString(cJSON *root, char *ident, char *ret_val)
             strcpy(ret_val, temp_ret_val);
         }
         fprintf(stderr,"%s ==-> %s\n", (char *)jsn, ret_val);
-        free((void *)jsn);
+        cJSON_free(jsn);
     }
 }
 
@@ -322,11 +324,18 @@ void drawSummaryText(SDL_Window *window, SDL_Renderer *renderer, char *text, cha
     text_text.y = y; // plot_position_y + plot_heigth + 3 * regular_caption_text_heigth;
     SDL_RenderCopy(renderer, texture, NULL, &text_text);
 
+    SDL_DestroyTexture(texture);
+
     texture = SDL_CreateTextureFromSurface(renderer, valText);
     SDL_QueryTexture(texture, NULL, NULL, &text_text.w, &text_text.h);
     text_text.x = x;      // params->plot_w / 2 - text_caption_x.w / 2;
     text_text.y = y + 30; // plot_position_y + plot_heigth + 3 * regular_caption_text_heigth;
     SDL_RenderCopy(renderer, texture, NULL, &text_text);
+
+    SDL_DestroyTexture(texture);
+
+    SDL_FreeSurface(valText);
+    SDL_FreeSurface(Text);
 
     TTF_CloseFont(smallFont);
     TTF_CloseFont(valueFont);
@@ -348,7 +357,7 @@ void drawSummary(SDL_Window *window, SDL_Renderer *renderer, char *summary_json)
     if (jsn_master)
     {
         fprintf(stderr,"%s\n", (char *)jsn_master);
-        free((void *)jsn_master);
+        cJSON_free(jsn_master);
     }
 
     char domains_being_blocked[1000];
@@ -362,6 +371,8 @@ void drawSummary(SDL_Window *window, SDL_Renderer *renderer, char *summary_json)
 
     char ads_percentage_today[1000];
     getJsonValueString(summary_json_parse, "ads_percentage_today", ads_percentage_today);
+
+    cJSON_free(summary_json_parse);
 
     int summary_pos_x = 10;
     int summary_pos_y = 10;
