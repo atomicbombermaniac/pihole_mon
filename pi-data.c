@@ -22,12 +22,14 @@ int getSummary(char *resp)
 
     if (res->ok == 0)
     {
+        http_get_free(res);
         return -2;
     }
 
     if (res->status != 200)
     {
-        printf("Status:%ld\n", res->status);
+        fprintf(stderr, "Status:%ld\n", res->status);
+        http_get_free(res);
         return -3;
     }
 
@@ -39,6 +41,7 @@ int getSummary(char *resp)
     }
     else
     {
+        http_get_free(res);
         return -4;
     }
 }
@@ -48,7 +51,7 @@ int getOver10Mins(char *resp)
 
     char addr[1000] = "http://192.168.1.100/admin/api.php?overTimeData10mins&auth="; //change the IP here as well !!!
     strcat(addr, pass);
-    // printf("%s\n\n", addr);
+    // fprintf(stderr,"%s\n\n", addr);
 
     http_get_response_t *res = http_get(addr);
 
@@ -59,12 +62,14 @@ int getOver10Mins(char *resp)
 
     if (res->ok == 0)
     {
+        http_get_free(res);
         return -2;
     }
 
     if (res->status != 200)
     {
-        printf("Status:%ld\n", res->status);
+        fprintf(stderr, "Status:%ld\n", res->status);
+        http_get_free(res);
         return -3;
     }
 
@@ -76,6 +81,7 @@ int getOver10Mins(char *resp)
     }
     else
     {
+        http_get_free(res);
         return -4;
     }
 }
@@ -89,75 +95,72 @@ int getMaxValueFromArray(long int *array, int size)
         {
             max = *array;
         }
-        // printf("== max=%d    *array=%d -> %d\n", max, *array, max);
+        // fprintf(stderr,"== max=%d    *array=%d -> %d\n", max, *array, max);
 
         array++;
     }
     return max;
 }
 
-inline void drawPlotOver10Mins(SDL_Window *window, SDL_Renderer *renderer)
+inline void drawPlotOver10Mins(SDL_Window *window, SDL_Renderer *renderer, char *resp)
 {
 #define MAX_NO_OF_POINTS 5000
     uint32_t no_of_points = 0;
-    char resp[50000];
+
     cJSON *overt10_json;
     cJSON *element;
     long int times[MAX_NO_OF_POINTS], values[MAX_NO_OF_POINTS], i;
 
-    if (!getOver10Mins(resp))
+    if (!resp)
+        return;
+    overt10_json = cJSON_Parse(resp);
+    if (overt10_json == NULL)
     {
-        overt10_json = cJSON_Parse(resp);
-        if (overt10_json == NULL)
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL)
         {
-            const char *error_ptr = cJSON_GetErrorPtr();
-            if (error_ptr != NULL)
-            {
-                fprintf(stderr, "Error before: %s\n", error_ptr);
-            }
+            fprintf(stderr, "Error before: %s\n", error_ptr);
+        }
+    }
+
+    // all ok
+    const cJSON *dom_over_time = NULL;
+    dom_over_time = cJSON_GetObjectItemCaseSensitive(overt10_json, "domains_over_time");
+    if (cJSON_IsObject(dom_over_time))
+    {
+        fprintf(stderr,"Checking dom_over_time \n");
+        char *jsn;
+        jsn = cJSON_Print(dom_over_time);
+        if (jsn)
+        {
+            // fprintf(stderr,"%s\n", jsn);
+            free((void *)jsn);
         }
 
-        // all ok
-        const cJSON *dom_over_time = NULL;
-        dom_over_time = cJSON_GetObjectItemCaseSensitive(overt10_json, "domains_over_time");
-        if (cJSON_IsObject(dom_over_time))
+        fprintf(stderr,"Parsing json to array\n");
+        // for (i = 0; i < NO_OF_POINTS; i++)
+        //{
+        while (element = cJSON_GetArrayItem(dom_over_time, no_of_points))
         {
-            printf("Checking dom_over_time \n");
-            char *jsn;
-            jsn = cJSON_Print(dom_over_time);
-            if (jsn)
+            if (element)
             {
-                // printf("%s\n", jsn);
-                free(jsn);
+                // fprintf(stderr,"%s %d %d\n", element->string, element->valueint, no_of_points );
+                times[no_of_points] = atoi(element->string);
+                values[no_of_points] = element->valueint;
+                no_of_points++;
+                // fprintf(stderr,"%d %d \n", times[i],values[i]);
             }
-
-            printf("Parsing json to array\n");
-            // for (i = 0; i < NO_OF_POINTS; i++)
-            //{
-            while (element = cJSON_GetArrayItem(dom_over_time, no_of_points))
+            else
             {
-                if (element)
-                {
-                    // printf("%s %d %d\n", element->string, element->valueint, no_of_points );
-                    times[no_of_points] = atoi(element->string);
-                    values[no_of_points] = element->valueint;
-                    no_of_points++;
-                    // printf("%d %d \n", times[i],values[i]);
-                }
-                else
-                {
-                    printf("no %d is invalid element\n", no_of_points);
-                    break;
-                }
+                fprintf(stderr,"no %d is invalid element\n", no_of_points);
+                break;
             }
         }
-        else
-            return;
-        if (dom_over_time)
-            free(dom_over_time);
     }
     else
         return;
+    if (dom_over_time)
+        free((void *)dom_over_time);
 
     // populate caption list
     captionlist caption_list = NULL;
@@ -179,15 +182,15 @@ inline void drawPlotOver10Mins(SDL_Window *window, SDL_Renderer *renderer)
         struct tm ts;
         ts = *localtime(&times[i]);
         strftime(buf, sizeof(buf), "%H:%M", &ts);
-        // printf("%s\n", buf);
+        // fprintf(stderr,"%s\n", buf);
         coordinate_list = push_back_coord(coordinate_list, 0, i, values[i]);
-        // printf("Pushing %d at %s\n", values[i], buf);
+        // fprintf(stderr,"Pushing %d at %s\n", values[i], buf);
         strcpy(params.graduation_x_text[i], buf);
     }
 
     // get max of values to set scale properly
     int max_val = getMaxValueFromArray(values, no_of_points);
-    printf("MAX VAL = %d\n", max_val);
+    fprintf(stderr,"MAX VAL = %d\n", max_val);
 
     // print_list_coord(coordinate_list);
 
@@ -211,7 +214,7 @@ inline void drawPlotOver10Mins(SDL_Window *window, SDL_Renderer *renderer)
     params.plot_h = 500;
     params.plot_w = 1500;
 
-    int ret = plot_graph(&params, window, renderer);
+    plot_graph(&params, window, renderer);
     SDL_RenderPresent(renderer); // copy to screen
 }
 
@@ -220,29 +223,15 @@ int getJsonValueInt(cJSON *root, char *ident)
     const cJSON *branch = NULL;
     cJSON *jsn;
     branch = cJSON_GetObjectItem(root, ident);
-    printf("Checking %s \n", ident);
+    fprintf(stderr,"Checking %s \n", ident);
     int ret_val = 0;
 
     jsn = cJSON_Print(branch);
     if (jsn)
     {
-        /*
-        //remove damn quotes
-        char cleaned[100];
-        char * ptr = &cleaned[0];
-        while(*((char*)jsn) !=0){
-            if(*((char*)jsn) != '"'){
-                *ptr = *((char *)jsn);
-                ptr++;
-            }
-            jsn++;
-        }
-
-        ret_val = atoi(cleaned);*/
-        // ret_val = cJSON_GetObjectItem(root,ident)->valueint;
         ret_val = (int)cJSON_GetNumberValue(branch);
-        printf("%s ==-> %d\n", jsn, ret_val);
-        free(jsn);
+        fprintf(stderr,"%s ==-> %d\n", (char *)jsn, ret_val);
+        free((void *)jsn);
     }
     return ret_val;
 }
@@ -252,15 +241,15 @@ float getJsonValueFloat(cJSON *root, char *ident)
     const cJSON *branch = NULL;
     cJSON *jsn;
     branch = cJSON_GetObjectItem(root, ident);
-    printf("Checking %s \n", ident);
+    fprintf(stderr,"Checking %s \n", ident);
     float ret_val = 0;
 
     jsn = cJSON_Print(branch);
     if (jsn)
     {
-        printf("%s\n", jsn);
-        ret_val = atof(jsn);
-        free(jsn);
+        fprintf(stderr,"%s\n", (char *)jsn);
+        ret_val = atof((char *)jsn);
+        free((void *)jsn);
     }
     return ret_val;
 }
@@ -270,7 +259,7 @@ void getJsonValueString(cJSON *root, char *ident, char *ret_val)
     const cJSON *branch = NULL;
     cJSON *jsn;
     branch = cJSON_GetObjectItem(root, ident);
-    printf("Checking %s \n", ident);
+    fprintf(stderr,"Checking %s \n", ident);
 
     jsn = cJSON_Print(branch);
     if (jsn)
@@ -280,8 +269,8 @@ void getJsonValueString(cJSON *root, char *ident, char *ret_val)
             char *temp_ret_val = cJSON_GetStringValue(branch);
             strcpy(ret_val, temp_ret_val);
         }
-        printf("%s ==-> %s\n", jsn, ret_val);
-        free(jsn);
+        fprintf(stderr,"%s ==-> %s\n", (char *)jsn, ret_val);
+        free((void *)jsn);
     }
 }
 
@@ -294,21 +283,22 @@ void drawSummaryText(SDL_Window *window, SDL_Renderer *renderer, char *text, cha
 
     if (!text)
     {
-        printf("text is invalid pointer.\n");
+        fprintf(stderr,"text is invalid pointer.\n");
         return;
     }
 
     if (!val)
     {
-        printf("val is invalid pointer.\n");
+        fprintf(stderr,"val is invalid pointer.\n");
         return;
     }
 
     TTF_Font *smallFont = TTF_OpenFont(font_text_path_for_big_text, font_text_size_for_small_text);
     TTF_Font *valueFont = TTF_OpenFont(font_text_path_for_big_text, font_text_size_for_big_text);
 
-    if(!smallFont || !valueFont ){
-        printf("TTF_OpenFont messed up opening the fonts. Skipping this time.\n");
+    if (!smallFont || !valueFont)
+    {
+        fprintf(stderr,"TTF_OpenFont messed up opening the fonts. Skipping this time.\n");
         return;
     }
 
@@ -317,7 +307,7 @@ void drawSummaryText(SDL_Window *window, SDL_Renderer *renderer, char *text, cha
 
     char val_to_display[100];
     if (strcasestr(val, "percentage"))
-        sprintf(val_to_display, "%s%%", val);//adding percentage sign to text
+        sprintf(val_to_display, "%s%%", val); // adding percentage sign to text
     else
         sprintf(val_to_display, "%s", val);
 
@@ -337,23 +327,19 @@ void drawSummaryText(SDL_Window *window, SDL_Renderer *renderer, char *text, cha
     text_text.x = x;      // params->plot_w / 2 - text_caption_x.w / 2;
     text_text.y = y + 30; // plot_position_y + plot_heigth + 3 * regular_caption_text_heigth;
     SDL_RenderCopy(renderer, texture, NULL, &text_text);
+
+    TTF_CloseFont(smallFont);
+    TTF_CloseFont(valueFont);
 }
 
-void drawSummary(SDL_Window *window, SDL_Renderer *renderer)
+void drawSummary(SDL_Window *window, SDL_Renderer *renderer, char *summary_json)
 {
-
-    char summary_json[5000];
-    if (0 != getSummary(summary_json))
-    {
-        printf("failed to get summary!\n");
-        return;
-    }
 
     cJSON *summary_json_parse;
     summary_json_parse = cJSON_Parse(summary_json);
     if (0 == summary_json_parse)
     {
-        printf("failed to parse summary!\n");
+        fprintf(stderr,"failed to parse summary!\n");
         return;
     }
 
@@ -361,8 +347,8 @@ void drawSummary(SDL_Window *window, SDL_Renderer *renderer)
     jsn_master = cJSON_Print(summary_json_parse);
     if (jsn_master)
     {
-        printf("%s\n", jsn_master);
-        free(jsn_master);
+        fprintf(stderr,"%s\n", (char *)jsn_master);
+        free((void *)jsn_master);
     }
 
     char domains_being_blocked[1000];

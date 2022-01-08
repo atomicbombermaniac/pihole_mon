@@ -53,6 +53,7 @@ as the name is changed.
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 
 #define NR_OF_FREQ 70
 

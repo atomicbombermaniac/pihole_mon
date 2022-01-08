@@ -70,13 +70,13 @@ int plot_graph(plot_params *params, SDL_Window *window, SDL_Renderer *renderer)
 	plot.textureY = NULL;
 	plot.renderer = renderer;
 
-	//font specs
+	// font specs
 	plot.font = TTF_OpenFont(params->font_text_path, params->font_text_size);
 
 	if (plot.font == NULL)
 	{
 		printf("Error font file read failure, check your font file\n");
-		//clean_plot(&plot,params,&surface_list);
+		// clean_plot(&plot,params,&surface_list);
 
 		return EXIT_FAILURE;
 	}
@@ -85,12 +85,12 @@ int plot_graph(plot_params *params, SDL_Window *window, SDL_Renderer *renderer)
 		params->plot_window_title,
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
-		params->screen_width, 
+		params->screen_width,
 		params->screen_heigth,
 		SDL_WINDOW_SHOWN);
 		*/
 
-	//SDL_SetWindowFullscreen(plot.screen,SDL_WINDOW_FULLSCREEN);
+	// SDL_SetWindowFullscreen(plot.screen,SDL_WINDOW_FULLSCREEN);
 
 	draw_plot(&plot, params, &surface_list);
 
@@ -106,7 +106,7 @@ int plot_graph(plot_params *params, SDL_Window *window, SDL_Renderer *renderer)
  *      plot containing SDL items
  * @param params
  *      plot parameters (cf plot_params struct)
-  * @param surface_list
+ * @param surface_list
  *      list of surfaces stored to be freed later
  */
 void clean_plot(splot *plot, plot_params *params, surfacelist *surface_list)
@@ -125,12 +125,12 @@ void clean_plot(splot *plot, plot_params *params, surfacelist *surface_list)
 
 	*surface_list = clear_surface(*surface_list);
 
-	//SDL_DestroyRenderer(plot->renderer);
-	//SDL_DestroyWindow  (plot->screen);
+	// SDL_DestroyRenderer(plot->renderer);
+	// SDL_DestroyWindow  (plot->screen);
 
-	//SDL_Quit();
-	//TTF_CloseFont(plot->font);
-	//TTF_Quit();
+	// SDL_Quit();
+	TTF_CloseFont(plot->font);
+	// TTF_Quit();
 }
 
 /**
@@ -140,12 +140,12 @@ void clean_plot(splot *plot, plot_params *params, surfacelist *surface_list)
  *      plot containing SDL objects
  * @param params
  *      plot parameters (cf plot_params struct)
-  * @param surface_list
+ * @param surface_list
  *      list of surfaces stored to be freed later
  */
 void draw_plot(splot *plot, plot_params *params, surfacelist *surface_list)
 {
-	//plot->renderer = SDL_CreateRenderer(plot->screen, 0, 0);
+	// plot->renderer = SDL_CreateRenderer(plot->screen, 0, 0);
 
 	if (plot->screen != NULL)
 	{
@@ -157,25 +157,25 @@ void draw_plot(splot *plot, plot_params *params, surfacelist *surface_list)
 		plot->captionY = TTF_RenderText_Blended(plot->font, params->caption_text_y, font_color);
 
 		//------------ background-----------------------
-		//SDL_SetRenderDrawColor(plot->renderer,255,255,255,255);
-		//SDL_Rect screen;
-		//screen.x=0;
-		//screen.y=0;
-		//screen.w=params->screen_width;
-		//screen.h=params->screen_heigth;
+		// SDL_SetRenderDrawColor(plot->renderer,255,255,255,255);
+		// SDL_Rect screen;
+		// screen.x=0;
+		// screen.y=0;
+		// screen.w=params->screen_width;
+		// screen.h=params->screen_heigth;
 
-		//SDL_RenderFillRect( plot->renderer, &screen );
+		// SDL_RenderFillRect( plot->renderer, &screen );
 		//---------------------------------------------
 
-		float plot_width = params->plot_w;	//params->screen_width*0.8;
-		float plot_heigth = params->plot_h; //params->screen_heigth*0.8;
-		float plot_caption_heigth = 20;		//params->screen_heigth*0.05;
+		float plot_width = params->plot_w;	// params->screen_width*0.8;
+		float plot_heigth = params->plot_h; // params->screen_heigth*0.8;
+		float plot_caption_heigth = 20;		// params->screen_heigth*0.05;
 
 		SDL_Rect plot_position;
 		plot_position.x = params->pos_x;  //(params->screen_width/2)-(plot_width*0.47);
 		plot_position.y = params->pos_y;  //(params->screen_heigth*0.50)-(plot_heigth/2);
-		plot_position.w = params->plot_w; //plot_width;
-		plot_position.h = params->plot_h; //plot_heigth;
+		plot_position.w = params->plot_w; // plot_width;
+		plot_position.h = params->plot_h; // plot_heigth;
 
 		SDL_Rect plot_mask_position;
 		plot_mask_position.x = plot_position.x - stroke_width;
@@ -207,9 +207,9 @@ void draw_plot(splot *plot, plot_params *params, surfacelist *surface_list)
 		SDL_SetRenderDrawColor(plot->renderer, 10, 10, 10, 255);
 		SDL_RenderFillRect(plot->renderer, &plot_caption_position);
 
-		SDL_Rect caption_y_position;
-		caption_y_position.x = plot_position.x;
-		caption_y_position.y = plot_position.y;
+		//SDL_Rect caption_y_position;
+		//caption_y_position.x = plot_position.x;
+		//caption_y_position.y = plot_position.y;
 
 		draw_scale_graduation(plot->renderer,
 							  params,
@@ -233,7 +233,7 @@ void draw_plot(splot *plot, plot_params *params, surfacelist *surface_list)
 
 				while (tmp != NULL)
 				{
-					//plot cercle1
+					// plot cercle1
 					int circle_x1 = plot_caption_mask_position.x + caption_offset;
 					int circle_y1 = plot_caption_mask_position.y + plot_caption_heigth / 2 + stroke_width;
 
@@ -246,7 +246,7 @@ void draw_plot(splot *plot, plot_params *params, surfacelist *surface_list)
 
 					fill_circle(plot->renderer, circle_x1, circle_y1, DOT_RADIUS - 2);
 
-					//plot cercle2
+					// plot cercle2
 					caption_offset += 40;
 
 					int circle_x2 = plot_caption_mask_position.x + caption_offset;
@@ -261,10 +261,10 @@ void draw_plot(splot *plot, plot_params *params, surfacelist *surface_list)
 
 					fill_circle(plot->renderer, circle_x2, circle_y2, DOT_RADIUS - 2);
 
-					//draw line between two circles
+					// draw line between two circles
 					SDL_RenderDrawLine(plot->renderer, circle_x1 + DOT_RADIUS + 1, circle_y1, circle_x2 - DOT_RADIUS - 1, circle_y2);
 
-					//display caption
+					// display caption
 					SDL_Surface *caption_text_surface = TTF_RenderText_Blended(plot->font, tmp->caption_txt, font_color);
 					SDL_Rect caption_text;
 					SDL_Texture *texture_text = SDL_CreateTextureFromSurface(plot->renderer, caption_text_surface);
@@ -295,7 +295,7 @@ void draw_plot(splot *plot, plot_params *params, surfacelist *surface_list)
 		__android_log_print(ANDROID_LOG_VERBOSE, APP_NAME, "plot finished");
 #endif
 
-		//wait_for_sdl_event();
+		// wait_for_sdl_event();
 	}
 	else
 	{
@@ -410,11 +410,11 @@ void draw_scale_graduation(SDL_Renderer *renderer,
 						   int plot_position_y)
 {
 
-	//int scale_x_num = plot_width / (params->max_x / params->scale_x);
+	// int scale_x_num = plot_width / (params->max_x / params->scale_x);
 	float scale_x_num = (float)plot_width / ((float)params->max_x / (float)params->scale_x);
 	int scale_y_num = plot_heigth / (params->max_y / params->scale_y);
 
-	//int init_pos_x = plot_mask_position.x; //- 40;
+	// int init_pos_x = plot_mask_position.x; //- 40;
 	float init_pos_x = plot_mask_position.x; //- 40;
 	int init_pos_y = plot_mask_position.y + plot_heigth + 1;
 
@@ -433,10 +433,10 @@ void draw_scale_graduation(SDL_Renderer *renderer,
 		SDL_SetRenderDrawColor(renderer, 0, 150, 0, 255);
 		SDL_RenderDrawLine(renderer, (int)init_pos_x, init_pos_y, (int)init_pos_x, init_pos_y + GRADUATION_HEIGTH);
 
-		//char text[10];
-		//sprintf(text,"%d",current_scale);
+		// char text[10];
+		// sprintf(text,"%d",current_scale);
 
-		//SDL_Surface *caption_text_surface = TTF_RenderText_Blended(font, text, font_color);
+		// SDL_Surface *caption_text_surface = TTF_RenderText_Blended(font, text, font_color);
 		SDL_Surface *caption_text_surface = TTF_RenderText_Blended(font, params->graduation_x_text[i], font_color);
 		SDL_Rect caption_text;
 		SDL_Texture *texture_text = SDL_CreateTextureFromSurface(renderer, caption_text_surface);
@@ -444,14 +444,14 @@ void draw_scale_graduation(SDL_Renderer *renderer,
 		caption_text.x = (int)(init_pos_x - 70); //-caption_text.w/2;
 		caption_text.y = init_pos_y + 75;
 
-		//SDL_Point caption_center={plot_position_x-CAPTION_Y_LABEL_OFFSET,0};
+		// SDL_Point caption_center={plot_position_x-CAPTION_Y_LABEL_OFFSET,0};
 		if (i % 2 == 0)
 		{
 			SDL_Point caption_center = {plot_position_x, 15};
 			SDL_RendererFlip flip = SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL;
 			SDL_RenderCopyEx(renderer, texture_text, NULL, &caption_text, 90, &caption_center, flip);
 		}
-		//SDL_RenderCopy(renderer, texture_text, NULL, &caption_text);
+		// SDL_RenderCopy(renderer, texture_text, NULL, &caption_text);
 
 		*surface_list = push_back_surface(*surface_list, caption_text_surface);
 
@@ -491,19 +491,19 @@ void draw_scale_graduation(SDL_Renderer *renderer,
 		regular_caption_text_width = caption_text.w;
 	}
 
-	//caption y
+	// caption y
 	SDL_Rect text_caption_y;
 	plot->textureY = SDL_CreateTextureFromSurface(plot->renderer, plot->captionY);
 	SDL_QueryTexture(plot->textureY, NULL, NULL, &text_caption_y.w, &text_caption_y.h);
 	text_caption_y.x = -1 * regular_caption_text_width;
 	text_caption_y.y = plot_mask_position.y + plot_heigth / 2 + text_caption_y.w / 4;
 
-	//rotate caption y
+	// rotate caption y
 	SDL_Point caption_center = {plot_position_x - CAPTION_Y_LABEL_OFFSET, 0};
 	SDL_RendererFlip flip = SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL;
 	SDL_RenderCopyEx(plot->renderer, plot->textureY, NULL, &text_caption_y, 90, &caption_center, flip);
 
-	//caption x
+	// caption x
 	SDL_Rect text_caption_x;
 	plot->textureX = SDL_CreateTextureFromSurface(plot->renderer, plot->captionX);
 	SDL_QueryTexture(plot->textureX, NULL, NULL, &text_caption_x.w, &text_caption_x.h);
@@ -537,8 +537,8 @@ void wait_for_sdl_event()
 
 /*
  * from : http://content.gpwiki.org/index.php/SDL:Tutorials:Drawing_and_Filling_Circles
- * 
- * This is an implementation of the Midpoint Circle Algorithm 
+ *
+ * This is an implementation of the Midpoint Circle Algorithm
  * found on Wikipedia at the following link:
  *
  *   http://en.wikipedia.org/wiki/Midpoint_circle_algorithm
@@ -599,12 +599,12 @@ void draw_circle(SDL_Renderer *renderer, int n_cx, int n_cy, int radius)
  *
  * SDL_Surface 32-bit circle-fill algorithm without using trig
  *
- * While I humbly call this "Celdecea's Method", odds are that the 
+ * While I humbly call this "Celdecea's Method", odds are that the
  * procedure has already been documented somewhere long ago.  All of
  * the circle-fill examples I came across utilized trig functions or
  * scanning neighbor pixels.  This algorithm identifies the width of
  * a semi-circle at each pixel height and draws a scan-line covering
- * that width.  
+ * that width.
  *
  * The code is not optimized but very fast, owing to the fact that it
  * alters pixels in the provided surface directly rather than through
@@ -615,11 +615,6 @@ void draw_circle(SDL_Renderer *renderer, int n_cx, int n_cy, int radius)
  */
 void fill_circle(SDL_Renderer *renderer, int cx, int cy, int radius)
 {
-	// Note that there is more to altering the bitrate of this
-	// method than just changing this value.  See how pixels are
-	// altered at the following web page for tips:
-	//   http://www.libsdl.org/intro.en/usingvideo.html
-	static const int BPP = 4;
 
 	double r = (double)radius;
 

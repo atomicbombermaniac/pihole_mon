@@ -5,10 +5,14 @@
 
 
 int getSummary(char * resp);
-void drawPlotOver10Mins(SDL_Window *window, SDL_Renderer *renderer);
 
-void plotSummary(SDL_Window *window, SDL_Renderer *renderer);
+int getOver10Mins(char *resp);
 
+void drawPlotOver10Mins(SDL_Window *window, SDL_Renderer *renderer, char *);
+
+void plotSummary(SDL_Window *window, SDL_Renderer *renderer, char *);
+
+void drawSummary(SDL_Window *window, SDL_Renderer *renderer, char *summary_json);
 
 
 #endif
