@@ -9,11 +9,14 @@
 
 #include <string.h>
 
-const char pass[] = "f568f6ed1bf7564f74a58f4d04f508aaa475ad9803f1cff5d34581d4bcee467b"; //this is the token you need to change (don't forget about the IPs below!)
+const char pass[] = "71ecc9be7159aa584124c920047dd84ccc2df6b6fb38a0ae6d54cdf61b06a0aa"; //this is the token you need to change (don't forget about the IPs below!)
 
 int getSummary(char *resp)
 {
-    http_get_response_t *res = http_get("http://192.168.1.100/admin/api.php?summary"); //also change the IP of the piHole with your piHole's IP
+    char addr[1000] = "http://192.168.50.3/admin/api.php?summary&auth=";  //also change the IP of the piHole with your piHole's IP
+    strcat(addr, pass);
+     fprintf(stderr,"For GET: \n%s\n\n", addr);
+    http_get_response_t *res = http_get(addr);
 
     if (res == 0)
     {
@@ -36,6 +39,7 @@ int getSummary(char *resp)
     if (res->data)
     {
         strcpy(resp, res->data);
+        printf("Summary:::::\n%s\n", res->data);
         http_get_free(res);
         return 0;
     }
@@ -49,7 +53,7 @@ int getSummary(char *resp)
 int getOver10Mins(char *resp)
 {
 
-    char addr[1000] = "http://192.168.1.100/admin/api.php?overTimeData10mins&auth="; //change the IP here as well !!!
+    char addr[1000] = "http://192.168.50.3/admin/api.php?overTimeData10mins&auth="; //change the IP here as well !!!
     strcat(addr, pass);
     // fprintf(stderr,"%s\n\n", addr);
 
@@ -207,7 +211,7 @@ inline void drawPlotOver10Mins(SDL_Window *window, SDL_Renderer *renderer, char 
     params.coordinate_list = coordinate_list;
     params.scale_x = 1;
     params.scale_y = 100;
-    params.max_x = no_of_points;
+    params.max_x = no_of_points - 1;
     params.max_y = max_val + 20; // 1200;
     params.pos_x = 70;
     params.pos_y = 240;
@@ -221,7 +225,7 @@ inline void drawPlotOver10Mins(SDL_Window *window, SDL_Renderer *renderer, char 
 int getJsonValueInt(cJSON *root, char *ident)
 {
     const cJSON *branch = NULL;
-    cJSON *jsn;
+    char *jsn;
     branch = cJSON_GetObjectItem(root, ident);
     fprintf(stderr,"Checking %s \n", ident);
     int ret_val = 0;
@@ -240,7 +244,7 @@ int getJsonValueInt(cJSON *root, char *ident)
 float getJsonValueFloat(cJSON *root, char *ident)
 {
     const cJSON *branch = NULL;
-    cJSON *jsn;
+    char *jsn;
     branch = cJSON_GetObjectItem(root, ident);
     fprintf(stderr,"Checking %s \n", ident);
     float ret_val = 0;
@@ -259,7 +263,7 @@ float getJsonValueFloat(cJSON *root, char *ident)
 void getJsonValueString(cJSON *root, char *ident, char *ret_val)
 {
     cJSON *branch = NULL;
-    cJSON *jsn;
+    char *jsn;
     branch = cJSON_GetObjectItem(root, ident);
     fprintf(stderr,"Checking %s \n", ident);
 
